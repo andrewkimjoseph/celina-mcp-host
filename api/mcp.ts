@@ -1,5 +1,5 @@
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
-import { createServer } from "@andrewkimjoseph/celina-mcp/build/server/create-server.js";
+import { createServer } from "@andrewkimjoseph/celina-mcp/server";
 
 async function handleMcp(request: Request): Promise<Response> {
   const server = createServer();
