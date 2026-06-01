@@ -4,6 +4,10 @@ Backend-only Vercel deployment that exposes read-only [celina-mcp](../celina-mcp
 
 Carbon DeFi: **12 read-only** tools — `get_carbon_strategies`, `get_carbon_strategy`, `get_carbon_trade_quote`, `explore_carbon_pair`, `resolve_carbon_token`, `get_carbon_activity`, `find_carbon_opportunities`, `get_carbon_protocol_stats`, `get_carbon_price_history`, `simulate_carbon_strategy`, `carbon_help`, `carbon_learn`. All **13** `prepare_carbon_*` tools are disabled (`carbonWritesEnabled: false` in [`api/mcp.ts`](api/mcp.ts)). See [celina-mcp Carbon section](../celina-mcp/README.md#carbon-defi-on-celo).
 
+GoodDollar UBI: **`get_gooddollar_whitelisting_info`** and **`get_gooddollar_ubi_entitlement`** (read). **`claim_daily_gooddollar_ubi`** requires `CELO_PRIVATE_KEY` — use local stdio MCP, not this hosted endpoint. See [GoodDollar UBI section](../celina-mcp/README.md#gooddollar-ubi).
+
+**Dependencies:** `@andrewkimjoseph/celina-mcp` **^0.8.0**, `@andrewkimjoseph/celina-sdk` **^0.4.0**.
+
 ## Endpoints
 
 | Path | Method | Description |
