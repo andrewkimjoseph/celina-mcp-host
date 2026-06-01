@@ -1,6 +1,6 @@
 {
   "name": "celina-mcp-host",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": true,
   "description": "Vercel-hosted read-only Streamable HTTP endpoint for @andrewkimjoseph/celina-mcp",
   "type": "module",
@@ -13,8 +13,8 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@andrewkimjoseph/celina-mcp": "^0.7.13",
-    "@andrewkimjoseph/celina-sdk": "^0.2.12",
+    "@andrewkimjoseph/celina-mcp": "^0.7.14",
+    "@andrewkimjoseph/celina-sdk": "^0.3.1",
     "@mento-protocol/mento-sdk": "^3.2.8",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@uniswap/sdk-core": "^7.16.1",
