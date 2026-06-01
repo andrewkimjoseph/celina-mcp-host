@@ -2,7 +2,7 @@
 
 Backend-only Vercel deployment that exposes read-only [celina-mcp](../celina-mcp) tools over **Streamable HTTP**. No Next.js, no UI.
 
-Carbon DeFi: **12 read-only** tools (`get_carbon_*`, `explore_carbon_pair`, `simulate_carbon_strategy`, `carbon_help`, `carbon_learn`). All `prepare_carbon_*` strategy/trade tools are disabled (`carbonWritesEnabled: false` in [`api/mcp.ts`](api/mcp.ts)).
+Carbon DeFi: **12 read-only** tools — `get_carbon_strategies`, `get_carbon_strategy`, `get_carbon_trade_quote`, `explore_carbon_pair`, `resolve_carbon_token`, `get_carbon_activity`, `find_carbon_opportunities`, `get_carbon_protocol_stats`, `get_carbon_price_history`, `simulate_carbon_strategy`, `carbon_help`, `carbon_learn`. All **13** `prepare_carbon_*` tools are disabled (`carbonWritesEnabled: false` in [`api/mcp.ts`](api/mcp.ts)). See [celina-mcp Carbon section](../celina-mcp/README.md#carbon-defi-on-celo).
 
 ## Endpoints
 
