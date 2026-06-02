@@ -2,13 +2,13 @@
 
 Backend-only Vercel deployment that exposes [celina-mcp](../celina-mcp) over **Streamable HTTP**. No Next.js, no UI.
 
-**Tool surface:** **71 tools** — all chain reads, estimates, GoodDollar entitlement reads, Self verify/lookup, and Carbon **12 read + 13 `prepare_carbon_*`**. No `CELO_PRIVATE_KEY` on the server; no `execute_carbon_*` or other server-key writes.
+**Tool surface:** **72 tools** — all chain reads, estimates, GoodDollar entitlement reads, Self verify/lookup, and Carbon **12 read + 13 `prepare_carbon_*`**. No `CELO_PRIVATE_KEY` on the server; no `execute_carbon_*`, no `get_wallet_address`, or other server-key writes.
 
 Carbon prepare tools return full unsigned flows (ERC-20 approve + Carbon controller steps via SDK `finalizeCarbonPrepare`). See [celina-mcp Carbon section](../celina-mcp/README.md#carbon-defi-on-celo).
 
 GoodDollar UBI: **`get_gooddollar_whitelisting_info`** and **`get_gooddollar_ubi_entitlement`** (read). **`claim_daily_gooddollar_ubi`** requires `CELO_PRIVATE_KEY` — use local stdio MCP. See [GoodDollar UBI section](../celina-mcp/README.md#gooddollar-ubi).
 
-**Dependencies:** `@andrewkimjoseph/celina-mcp` **`0.8.4`**, `@andrewkimjoseph/celina-sdk` **`0.4.7`**.
+**Dependencies:** `@andrewkimjoseph/celina-mcp` **`^0.8.5`**, `@andrewkimjoseph/celina-sdk` **`^0.4.8`**.
 
 ## Endpoints
 
@@ -33,7 +33,7 @@ Requires Node.js ≥ 20. Install published npm packages — do not use local `fi
 
 ```bash
 npm run dev
-npm run test:smoke   # expects 71 tools, prepare_carbon_* present, execute_carbon_* absent
+npm run test:smoke   # expects 72 tools, prepare_carbon_* present, execute_carbon_* absent
 ```
 
 Connect MCP Inspector (Streamable HTTP) to `http://localhost:3000/api/mcp`.
