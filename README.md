@@ -8,7 +8,7 @@ Carbon prepare tools return full unsigned flows (ERC-20 approve + Carbon control
 
 GoodDollar UBI: **`get_gooddollar_whitelisting_info`** and **`get_gooddollar_ubi_entitlement`** (read). **`claim_daily_gooddollar_ubi`** requires `CELO_PRIVATE_KEY` — use local stdio MCP. See [GoodDollar UBI section](../celina-mcp/README.md#gooddollar-ubi).
 
-**Dependencies:** `@andrewkimjoseph/celina-mcp` **`^0.8.5`**, `@andrewkimjoseph/celina-sdk` **`^0.4.8`**.
+**Dependencies:** `@andrewkimjoseph/celina-mcp` **`0.8.8`**, `@andrewkimjoseph/celina-sdk` **`0.4.10`**.
 
 ## Endpoints
 
