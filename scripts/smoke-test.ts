@@ -48,11 +48,21 @@ async function main(): Promise<void> {
   const parsed = JSON.parse(toolsText) as {
     result?: { tools?: { name: string }[] };
   };
-  console.log("tool count", parsed.result?.tools?.length ?? 0);
-  console.log(
-    "sample tools",
-    parsed.result?.tools?.slice(0, 3).map((t) => t.name),
-  );
+  const tools = parsed.result?.tools ?? [];
+  const names = tools.map((t) => t.name);
+  console.log("tool count", tools.length);
+  console.log("sample tools", names.slice(0, 3));
+
+  if (!names.includes("prepare_carbon_limit_order")) {
+    throw new Error("expected prepare_carbon_limit_order on hosted MCP");
+  }
+  if (names.some((n) => n.startsWith("execute_carbon_"))) {
+    throw new Error("execute_carbon_* must not be on hosted MCP");
+  }
+  if (tools.length !== 71) {
+    throw new Error(`expected 71 tools on hosted MCP, got ${tools.length}`);
+  }
+  console.log("hosted carbon prepare check ok");
 }
 
 main().catch((error) => {
