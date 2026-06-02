@@ -2,7 +2,10 @@ import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/
 import { createServer } from "@andrewkimjoseph/celina-mcp/server";
 
 async function handleMcp(request: Request): Promise<Response> {
-  const server = createServer({ carbonWritesEnabled: false });
+  const server = createServer({
+    carbonExecuteEnabled: false,
+    carbonPrepareEnabled: true,
+  });
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
     enableJsonResponse: true,
