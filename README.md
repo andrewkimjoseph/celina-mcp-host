@@ -1,12 +1,14 @@
 # Celina MCP Host
 
-Backend-only Vercel deployment that exposes read-only [celina-mcp](../celina-mcp) tools over **Streamable HTTP**. No Next.js, no UI.
+Backend-only Vercel deployment that exposes [celina-mcp](../celina-mcp) over **Streamable HTTP**. No Next.js, no UI.
 
-Carbon DeFi: **12 read-only** tools — `get_carbon_strategies`, `get_carbon_strategy`, `get_carbon_trade_quote`, `explore_carbon_pair`, `resolve_carbon_token`, `get_carbon_activity`, `find_carbon_opportunities`, `get_carbon_protocol_stats`, `get_carbon_price_history`, `simulate_carbon_strategy`, `carbon_help`, `carbon_learn`. All **13** `prepare_carbon_*` tools are disabled (`carbonWritesEnabled: false` in [`api/mcp.ts`](api/mcp.ts)). See [celina-mcp Carbon section](../celina-mcp/README.md#carbon-defi-on-celo).
+**Tool surface:** **71 tools** — all chain reads, estimates, GoodDollar entitlement reads, Self verify/lookup, and Carbon **12 read + 13 `prepare_carbon_*`**. No `CELO_PRIVATE_KEY` on the server; no `execute_carbon_*` or other server-key writes.
 
-GoodDollar UBI: **`get_gooddollar_whitelisting_info`** and **`get_gooddollar_ubi_entitlement`** (read). **`claim_daily_gooddollar_ubi`** requires `CELO_PRIVATE_KEY` — use local stdio MCP, not this hosted endpoint. See [GoodDollar UBI section](../celina-mcp/README.md#gooddollar-ubi).
+Carbon prepare tools return full unsigned flows (ERC-20 approve + Carbon controller steps via SDK `finalizeCarbonPrepare`). See [celina-mcp Carbon section](../celina-mcp/README.md#carbon-defi-on-celo).
 
-**Dependencies:** `@andrewkimjoseph/celina-mcp` **^0.8.0**, `@andrewkimjoseph/celina-sdk` **^0.4.0**.
+GoodDollar UBI: **`get_gooddollar_whitelisting_info`** and **`get_gooddollar_ubi_entitlement`** (read). **`claim_daily_gooddollar_ubi`** requires `CELO_PRIVATE_KEY` — use local stdio MCP. See [GoodDollar UBI section](../celina-mcp/README.md#gooddollar-ubi).
+
+**Dependencies:** `@andrewkimjoseph/celina-mcp` **`0.8.4`**, `@andrewkimjoseph/celina-sdk` **`0.4.7`**.
 
 ## Endpoints
 
@@ -16,6 +18,8 @@ GoodDollar UBI: **`get_gooddollar_whitelisting_info`** and **`get_gooddollar_ubi
 | `/mcp` | GET, POST, DELETE | Rewrite to `/api/mcp` |
 | `/api/health` | GET | Health check |
 
+Production: [https://mcp.usecelina.xyz/api/mcp](https://mcp.usecelina.xyz/api/mcp)
+
 ## Setup
 
 ```bash
@@ -23,21 +27,16 @@ cp .env.example .env.local   # optional for local dev
 npm install
 ```
 
-To develop against a local celina-mcp checkout in the monorepo:
-
-```bash
-npm install ../celina-mcp
-```
-
-Then import from `@andrewkimjoseph/celina-mcp/server` if the linked package includes the `./server` export (celina-mcp >= 0.7.2), or keep the `build/server/create-server.js` import path.
+Requires Node.js ≥ 20. Install published npm packages — do not use local `file:` links in production.
 
 ## Local dev
 
 ```bash
 npm run dev
+npm run test:smoke   # expects 71 tools, prepare_carbon_* present, execute_carbon_* absent
 ```
 
-Then connect MCP Inspector (Streamable HTTP) to `http://localhost:3000/api/mcp`.
+Connect MCP Inspector (Streamable HTTP) to `http://localhost:3000/api/mcp`.
 
 ## Deploy to Vercel
 
@@ -51,7 +50,7 @@ Then connect MCP Inspector (Streamable HTTP) to `http://localhost:3000/api/mcp`.
 
    | Variable | Required | Notes |
    |----------|----------|-------|
-   | `CELO_RPC_URL_MAINNET` | Recommended | Dedicated RPC in production |
+   | `CELO_RPC_URL_MAINNET` | Recommended | Required for Carbon prepare allowance reads |
    | `ETH_RPC_URL_MAINNET` | Optional | ENS resolution |
 
    Do **not** set `CELO_PRIVATE_KEY` or `SELF_AGENT_PRIVATE_KEY`.
@@ -62,15 +61,13 @@ Then connect MCP Inspector (Streamable HTTP) to `http://localhost:3000/api/mcp`.
    vercel --prod
    ```
 
-Production: `https://celina-mcp-host.vercel.app/api/mcp`
-
 ## MCP client config
 
 ```json
 {
   "mcpServers": {
     "celina-mcp": {
-      "url": "https://celina-mcp-host.vercel.app/api/mcp"
+      "url": "https://mcp.usecelina.xyz/api/mcp"
     }
   }
 }
@@ -83,7 +80,7 @@ For stdio-only clients, use [mcp-remote](https://www.npmjs.com/package/mcp-remot
   "mcpServers": {
     "celina-mcp": {
       "command": "npx",
-      "args": ["-y", "mcp-remote", "https://your-project.vercel.app/api/mcp"]
+      "args": ["-y", "mcp-remote", "https://mcp.usecelina.xyz/api/mcp"]
     }
   }
 }
@@ -91,10 +88,16 @@ For stdio-only clients, use [mcp-remote](https://www.npmjs.com/package/mcp-remot
 
 ## How it links to celina-mcp
 
-This host imports `createServer` from `@andrewkimjoseph/celina-mcp/server` and wraps it with MCP Streamable HTTP transport. All tools, chain logic, and SDK calls live in celina-mcp; this repo only provides the HTTP entrypoint on Vercel.
+[`api/mcp.ts`](api/mcp.ts) imports `createServer` from `@andrewkimjoseph/celina-mcp/server`:
 
-## Read-only behavior
+```ts
+createServer({ carbonExecuteEnabled: false, carbonPrepareEnabled: true })
+```
 
-Without private keys, write tools fail with clear errors. Self registration sessions (`register_self_agent` → `check_self_registration`) are unreliable on stateless serverless because session state is in-memory per invocation.
+All tools, chain logic, and SDK calls live in celina-mcp; this repo only provides the HTTP entrypoint on Vercel.
 
-See [celina-mcp README](../celina-mcp/README.md#hosted-vercel-read-only) for tool coverage details.
+## Read-only execution
+
+Without private keys, server-key write tools fail with clear errors. Self registration sessions (`register_self_agent` → `check_self_registration`) are unreliable on stateless serverless because session state is in-memory per invocation.
+
+See [celina-mcp README — Hosted](../celina-mcp/README.md#hosted-read-only) for full tool coverage.
