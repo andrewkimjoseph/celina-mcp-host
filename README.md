@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./assets/celina-banner.png" alt="Celina — Give your LLM a wallet on Celo">
+</p>
+
 # Celina MCP Host
 
 Backend-only Vercel deployment that exposes [celina-mcp](../celina-mcp) over **Streamable HTTP**. No Next.js, no UI.
