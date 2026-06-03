@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@andrewkimjoseph/celina-mcp": "0.8.8",
-    "@andrewkimjoseph/celina-sdk": "0.4.10",
+    "@andrewkimjoseph/celina-sdk": "0.4.11",
     "@mento-protocol/mento-sdk": "^3.2.8",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@uniswap/sdk-core": "^7.16.1",
