@@ -6,7 +6,9 @@
 
 Backend-only Vercel deployment that exposes [celina-mcp](../celina-mcp) over **Streamable HTTP**. No Next.js, no UI.
 
-**Tool surface:** **72 tools** — all chain reads, estimates, GoodDollar entitlement reads, Self verify/lookup, and Carbon **12 read + 13 `prepare_carbon_*`**. No `CELO_PRIVATE_KEY` on the server; no `execute_carbon_*`, no `get_wallet_address`, or other server-key writes.
+This is the **hosted read/prepare profile** of the shared [`@andrewkimjoseph/celina-sdk/tools`](https://www.npmjs.com/package/@andrewkimjoseph/celina-sdk) catalog — the same definitions local stdio MCP and browser wallet apps use, filtered with `carbonExecuteEnabled: false` and no server keys.
+
+**Tool surface:** **72 tools** — all chain reads, estimates, GoodDollar entitlement reads, Self verify/lookup, and Carbon **12 read + 13 `prepare_carbon_*`**. No `CELO_PRIVATE_KEY` on the server; **`execute_carbon_*` omitted**; key-dependent tools (`get_wallet_address`, wallet-scoped estimates, Self lifecycle) register but fail without local keys.
 
 Carbon prepare tools return full unsigned flows (ERC-20 approve + Carbon controller steps via SDK `finalizeCarbonPrepare`). See [celina-mcp Carbon section](../celina-mcp/README.md#carbon-defi-on-celo).
 
@@ -98,10 +100,12 @@ For stdio-only clients, use [mcp-remote](https://www.npmjs.com/package/mcp-remot
 createServer({ carbonExecuteEnabled: false, carbonPrepareEnabled: true })
 ```
 
-All tools, chain logic, and SDK calls live in celina-mcp; this repo only provides the HTTP entrypoint on Vercel.
+`createServer` calls `registerSdkTools`, which filters `ALL_TOOL_DEFINITIONS` from celina-sdk. Chain logic and handlers live in celina-sdk; celina-mcp wires them to MCP; this repo only provides the Streamable HTTP entrypoint on Vercel.
 
-## Read-only execution
+## Hosted constraints
 
-Without private keys, server-key write tools fail with clear errors. Self registration sessions (`register_self_agent` → `check_self_registration`) are unreliable on stateless serverless because session state is in-memory per invocation.
+Without private keys, server-key write tools fail with clear errors. Wallet-scoped estimates (`estimate_send`, `estimate_mento_fx`, `estimate_uniswap_swap`) require local stdio with `CELO_PRIVATE_KEY`.
 
-See [celina-mcp README — Hosted](../celina-mcp/README.md#hosted-read-only) for full tool coverage.
+Self registration sessions (`register_self_agent` → `check_self_registration`) are unreliable on stateless serverless because session state is in-memory per invocation — use local stdio for Self Agent ID lifecycle flows.
+
+See [celina-mcp README — Hosted](../celina-mcp/README.md#hosted-reads--prepare) for full tool coverage.
