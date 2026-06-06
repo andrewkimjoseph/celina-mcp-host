@@ -59,8 +59,8 @@ async function main(): Promise<void> {
   if (names.some((n) => n.startsWith("execute_carbon_"))) {
     throw new Error("execute_carbon_* must not be on hosted MCP");
   }
-  if (tools.length !== 72) {
-    throw new Error(`expected 72 tools on hosted MCP, got ${tools.length}`);
+  if (tools.length !== 73) {
+    throw new Error(`expected 73 tools on hosted MCP, got ${tools.length}`);
   }
   console.log("hosted carbon prepare check ok");
 }
