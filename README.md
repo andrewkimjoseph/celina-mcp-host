@@ -8,13 +8,13 @@ Backend-only Vercel deployment that exposes [celina-mcp](../celina-mcp) over **S
 
 This is the **hosted read/prepare profile** of the shared [`@andrewkimjoseph/celina-sdk/tools`](https://www.npmjs.com/package/@andrewkimjoseph/celina-sdk) catalog — the same definitions local stdio MCP and browser wallet apps use, filtered with `carbonExecuteEnabled: false` and no server keys.
 
-**Tool surface:** **60 tools** — chain reads, gas estimates (pass explicit `from` when no server wallet), GoodDollar entitlement + reserve quotes, Self verify/lookup, and Carbon **12 read + 13 `prepare_carbon_*`**. No `CELO_PRIVATE_KEY` or `SELF_AGENT_PRIVATE_KEY` on the server; **`execute_carbon_*`**, server-key writes (`send_token`, `execute_mento_fx`, etc.), `get_wallet_address`, Self lifecycle, and Self registration session tools are **omitted** from `tools/list`.
+**Tool surface:** **54 tools** — chain reads, oracle/AMM quotes (`get_mento_fx_quote`, `get_uniswap_quote`, `get_gooddollar_reserve_quote`), GoodDollar entitlement, Self verify/lookup, and Carbon **12 read + 13 `prepare_carbon_*`**. No `CELO_PRIVATE_KEY` or `SELF_AGENT_PRIVATE_KEY` on the server; **`execute_carbon_*`**, **`estimate_*`**, server-key writes (`send_token`, `execute_mento_fx`, etc.), `get_wallet_address`, Self lifecycle, and Self registration session tools are **omitted** from `tools/list`.
 
 Carbon prepare tools return full unsigned flows (ERC-20 approve + Carbon controller steps via SDK `finalizeCarbonPrepare`). See [celina-mcp Carbon section](../celina-mcp/README.md#carbon-defi-on-celo).
 
-GoodDollar: **`get_gooddollar_whitelisting_info`**, **`get_gooddollar_ubi_entitlement`**, **`get_gooddollar_reserve_quote`**, and **`estimate_gooddollar_reserve_swap`** (read). **`execute_gooddollar_reserve_swap`** and **`claim_daily_gooddollar_ubi`** require `CELO_PRIVATE_KEY` — use local stdio MCP. See [GoodDollar section](../celina-mcp/README.md#gooddollar).
+GoodDollar: **`get_gooddollar_whitelisting_info`**, **`get_gooddollar_ubi_entitlement`**, and **`get_gooddollar_reserve_quote`** on hosted. **`estimate_gooddollar_reserve_swap`**, **`execute_gooddollar_reserve_swap`**, and **`claim_daily_gooddollar_ubi`** require local stdio MCP with `CELO_PRIVATE_KEY`. See [GoodDollar section](../celina-mcp/README.md#gooddollar).
 
-**Dependencies:** `@andrewkimjoseph/celina-mcp` **`0.8.19`**, `@andrewkimjoseph/celina-sdk` **`0.7.6`**.
+**Dependencies:** `@andrewkimjoseph/celina-mcp` **`0.8.20`**, `@andrewkimjoseph/celina-sdk` **`0.7.7`**.
 
 ## Endpoints
 
@@ -39,7 +39,7 @@ Requires Node.js ≥ 20. Install published npm packages — do not use local `fi
 
 ```bash
 npm run dev
-npm run test:smoke   # expects 60 tools, prepare_carbon_* present, server-key tools absent
+npm run test:smoke   # expects 54 tools, prepare_carbon_* present, estimate_* and server-key tools absent
 ```
 
 Connect MCP Inspector (Streamable HTTP) to `http://localhost:3000/api/mcp`.
@@ -97,14 +97,20 @@ For stdio-only clients, use [mcp-remote](https://www.npmjs.com/package/mcp-remot
 [`api/mcp.ts`](api/mcp.ts) imports `createServer` from `@andrewkimjoseph/celina-mcp/server`:
 
 ```ts
-createServer({ carbonExecuteEnabled: false, carbonPrepareEnabled: true })
+createServer({
+  carbonExecuteEnabled: false,
+  carbonPrepareEnabled: true,
+  serverKeyToolsEnabled: false,
+  selfSessionToolsEnabled: false,
+  estimateToolsEnabled: false,
+})
 ```
 
 `createServer` calls `registerSdkTools`, which filters `ALL_TOOL_DEFINITIONS` from celina-sdk. Chain logic and handlers live in celina-sdk; celina-mcp wires them to MCP; this repo only provides the Streamable HTTP entrypoint on Vercel.
 
 ## Hosted constraints
 
-Without private keys, server-key write tools fail with clear errors. Wallet-scoped estimates (`estimate_send`, `estimate_mento_fx`, `estimate_uniswap_swap`) require local stdio with `CELO_PRIVATE_KEY`.
+Server-key writes and all `estimate_*` gas simulation tools are omitted from `tools/list` on hosted. Use local stdio MCP with `CELO_PRIVATE_KEY` for `send_token`, `estimate_send`, `estimate_mento_fx`, etc.
 
 Self registration sessions (`register_self_agent` → `check_self_registration`) are unreliable on stateless serverless because session state is in-memory per invocation — use local stdio for Self Agent ID lifecycle flows.
 

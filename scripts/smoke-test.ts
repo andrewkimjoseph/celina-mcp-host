@@ -65,13 +65,17 @@ async function main(): Promise<void> {
     "register_self_agent",
     "execute_mento_fx",
     "get_self_identity",
+    "estimate_send",
   ]) {
     if (names.includes(excluded)) {
       throw new Error(`${excluded} must not be on hosted MCP`);
     }
   }
-  if (tools.length !== 60) {
-    throw new Error(`expected 60 tools on hosted MCP, got ${tools.length}`);
+  if (names.some((n) => n.startsWith("estimate_"))) {
+    throw new Error("estimate_* must not be on hosted MCP");
+  }
+  if (tools.length !== 54) {
+    throw new Error(`expected 54 tools on hosted MCP, got ${tools.length}`);
   }
   console.log("hosted tool surface check ok");
 }

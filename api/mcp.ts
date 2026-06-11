@@ -7,6 +7,7 @@ async function handleMcp(request: Request): Promise<Response> {
     carbonPrepareEnabled: true,
     serverKeyToolsEnabled: false,
     selfSessionToolsEnabled: false,
+    estimateToolsEnabled: false,
   });
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
