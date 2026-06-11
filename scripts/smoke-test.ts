@@ -142,6 +142,40 @@ async function main(): Promise<void> {
     throw new Error(`get_block unexpected result: ${blockText}`);
   }
   console.log("get_block ok");
+
+  const quoteRes = await POST(
+    new Request("http://localhost/api/mcp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json, text/event-stream",
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 5,
+        method: "tools/call",
+        params: {
+          name: "get_mento_fx_quote",
+          arguments: {
+            token_in: "USDm",
+            token_out: "EURm",
+            amount: "1",
+          },
+        },
+      }),
+    }),
+  );
+  const quoteText = await quoteRes.text();
+  const quoteParsed = JSON.parse(quoteText) as {
+    result?: { isError?: boolean; structuredContent?: { expectedOut?: string } };
+  };
+  if (quoteParsed.result?.isError) {
+    throw new Error(`get_mento_fx_quote failed: ${quoteText}`);
+  }
+  if (!quoteParsed.result?.structuredContent?.expectedOut) {
+    throw new Error(`get_mento_fx_quote unexpected result: ${quoteText}`);
+  }
+  console.log("get_mento_fx_quote ok");
 }
 
 main().catch((error) => {
