@@ -115,3 +115,7 @@ Server-key writes and all `estimate_*` gas simulation tools are omitted from `to
 Self registration sessions (`register_self_agent` → `check_self_registration`) are unreliable on stateless serverless because session state is in-memory per invocation — use local stdio for Self Agent ID lifecycle flows.
 
 See [celina-mcp README — Hosted](../celina-mcp/README.md#hosted-reads--prepare) for full tool coverage.
+
+## Security
+
+The hosted endpoint is **intentionally public** (no API key): read/prepare tools only, no server private keys. Automated scanners that require authentication on `tools/list` will report failures for this deployment profile — see [SECURITY.md](./SECURITY.md) for the threat model and what is exposed.
