@@ -78,6 +78,40 @@ async function main(): Promise<void> {
     throw new Error(`expected 54 tools on hosted MCP, got ${tools.length}`);
   }
   console.log("hosted tool surface check ok");
+
+  const verifyBody = {
+    jsonrpc: "2.0",
+    id: 3,
+    method: "tools/call",
+    params: {
+      name: "verify_self_agent",
+      arguments: {
+        agent_address: "0xC1C860804EFdA544fe79194d1a37e60b846CEdeb",
+      },
+    },
+  };
+
+  const verifyRes = await POST(
+    new Request("http://localhost/api/mcp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json, text/event-stream",
+      },
+      body: JSON.stringify(verifyBody),
+    }),
+  );
+  const verifyText = await verifyRes.text();
+  const verifyParsed = JSON.parse(verifyText) as {
+    result?: { isError?: boolean; structuredContent?: { verified?: boolean } };
+  };
+  if (verifyParsed.result?.isError) {
+    throw new Error(`verify_self_agent failed: ${verifyText}`);
+  }
+  if (verifyParsed.result?.structuredContent?.verified !== true) {
+    throw new Error(`verify_self_agent unexpected result: ${verifyText}`);
+  }
+  console.log("verify_self_agent ok");
 }
 
 main().catch((error) => {
