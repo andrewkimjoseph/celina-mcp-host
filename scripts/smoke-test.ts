@@ -112,6 +112,36 @@ async function main(): Promise<void> {
     throw new Error(`verify_self_agent unexpected result: ${verifyText}`);
   }
   console.log("verify_self_agent ok");
+
+  const blockRes = await POST(
+    new Request("http://localhost/api/mcp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json, text/event-stream",
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 4,
+        method: "tools/call",
+        params: {
+          name: "get_block",
+          arguments: { block_id: " latest" },
+        },
+      }),
+    }),
+  );
+  const blockText = await blockRes.text();
+  const blockParsed = JSON.parse(blockText) as {
+    result?: { isError?: boolean; structuredContent?: { hash?: string } };
+  };
+  if (blockParsed.result?.isError) {
+    throw new Error(`get_block failed: ${blockText}`);
+  }
+  if (!blockParsed.result?.structuredContent?.hash) {
+    throw new Error(`get_block unexpected result: ${blockText}`);
+  }
+  console.log("get_block ok");
 }
 
 main().catch((error) => {
