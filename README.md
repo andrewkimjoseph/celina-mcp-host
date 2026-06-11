@@ -8,13 +8,13 @@ Backend-only Vercel deployment that exposes [celina-mcp](../celina-mcp) over **S
 
 This is the **hosted read/prepare profile** of the shared [`@andrewkimjoseph/celina-sdk/tools`](https://www.npmjs.com/package/@andrewkimjoseph/celina-sdk) catalog — the same definitions local stdio MCP and browser wallet apps use, filtered with `carbonExecuteEnabled: false` and no server keys.
 
-**Tool surface:** **75 tools** — all chain reads, estimates, GoodDollar entitlement + reserve quotes, Self verify/lookup, and Carbon **12 read + 13 `prepare_carbon_*`**. No `CELO_PRIVATE_KEY` on the server; **`execute_carbon_*` omitted**; key-dependent tools (`get_wallet_address`, wallet-scoped estimates, reserve execute, Self lifecycle) register but fail without local keys.
+**Tool surface:** **60 tools** — chain reads, gas estimates (pass explicit `from` when no server wallet), GoodDollar entitlement + reserve quotes, Self verify/lookup, and Carbon **12 read + 13 `prepare_carbon_*`**. No `CELO_PRIVATE_KEY` or `SELF_AGENT_PRIVATE_KEY` on the server; **`execute_carbon_*`**, server-key writes (`send_token`, `execute_mento_fx`, etc.), `get_wallet_address`, Self lifecycle, and Self registration session tools are **omitted** from `tools/list`.
 
 Carbon prepare tools return full unsigned flows (ERC-20 approve + Carbon controller steps via SDK `finalizeCarbonPrepare`). See [celina-mcp Carbon section](../celina-mcp/README.md#carbon-defi-on-celo).
 
 GoodDollar: **`get_gooddollar_whitelisting_info`**, **`get_gooddollar_ubi_entitlement`**, **`get_gooddollar_reserve_quote`**, and **`estimate_gooddollar_reserve_swap`** (read). **`execute_gooddollar_reserve_swap`** and **`claim_daily_gooddollar_ubi`** require `CELO_PRIVATE_KEY` — use local stdio MCP. See [GoodDollar section](../celina-mcp/README.md#gooddollar).
 
-**Dependencies:** `@andrewkimjoseph/celina-mcp` **`0.8.13`**, `@andrewkimjoseph/celina-sdk` **`0.7.0`**.
+**Dependencies:** `@andrewkimjoseph/celina-mcp` **`0.8.19`**, `@andrewkimjoseph/celina-sdk` **`0.7.6`**.
 
 ## Endpoints
 
@@ -39,7 +39,7 @@ Requires Node.js ≥ 20. Install published npm packages — do not use local `fi
 
 ```bash
 npm run dev
-npm run test:smoke   # expects 75 tools, prepare_carbon_* present, execute_carbon_* absent
+npm run test:smoke   # expects 60 tools, prepare_carbon_* present, server-key tools absent
 ```
 
 Connect MCP Inspector (Streamable HTTP) to `http://localhost:3000/api/mcp`.

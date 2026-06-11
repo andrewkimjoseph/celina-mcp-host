@@ -59,10 +59,21 @@ async function main(): Promise<void> {
   if (names.some((n) => n.startsWith("execute_carbon_"))) {
     throw new Error("execute_carbon_* must not be on hosted MCP");
   }
-  if (tools.length !== 75) {
-    throw new Error(`expected 75 tools on hosted MCP, got ${tools.length}`);
+  for (const excluded of [
+    "send_token",
+    "get_wallet_address",
+    "register_self_agent",
+    "execute_mento_fx",
+    "get_self_identity",
+  ]) {
+    if (names.includes(excluded)) {
+      throw new Error(`${excluded} must not be on hosted MCP`);
+    }
   }
-  console.log("hosted carbon prepare check ok");
+  if (tools.length !== 60) {
+    throw new Error(`expected 60 tools on hosted MCP, got ${tools.length}`);
+  }
+  console.log("hosted tool surface check ok");
 }
 
 main().catch((error) => {
