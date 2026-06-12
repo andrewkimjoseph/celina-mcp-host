@@ -12,7 +12,7 @@ This is the **hosted read/prepare profile** of the shared [`@andrewkimjoseph/cel
 
 GoodDollar: **`get_gooddollar_whitelisting_info`**, **`get_gooddollar_ubi_entitlement`**, and **`get_gooddollar_reserve_quote`** on hosted. **`estimate_gooddollar_reserve_swap`**, **`execute_gooddollar_reserve_swap`**, and **`claim_daily_gooddollar_ubi`** require local stdio MCP with `CELO_PRIVATE_KEY`. See [GoodDollar section](../celina-mcp/README.md#gooddollar).
 
-**Dependencies:** `@andrewkimjoseph/celina-mcp` **`0.8.20`**, `@andrewkimjoseph/celina-sdk` **`0.7.7`**.
+**Dependencies:** `@andrewkimjoseph/celina-mcp` **`^0.9.0`**, `@andrewkimjoseph/celina-sdk` **`^0.8.0`** (published npm — no `file:` links on Vercel).
 
 ## Endpoints
 
