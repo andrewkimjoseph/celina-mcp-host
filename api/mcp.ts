@@ -3,8 +3,6 @@ import { createServer } from "@andrewkimjoseph/celina-mcp/server";
 
 async function handleMcp(request: Request): Promise<Response> {
   const server = createServer({
-    carbonExecuteEnabled: false,
-    carbonPrepareEnabled: true,
     serverKeyToolsEnabled: false,
     selfSessionToolsEnabled: false,
     estimateToolsEnabled: false,

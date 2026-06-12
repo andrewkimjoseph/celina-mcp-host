@@ -6,11 +6,9 @@
 
 Backend-only Vercel deployment that exposes [celina-mcp](../celina-mcp) over **Streamable HTTP**. No Next.js, no UI.
 
-This is the **hosted read/prepare profile** of the shared [`@andrewkimjoseph/celina-sdk/tools`](https://www.npmjs.com/package/@andrewkimjoseph/celina-sdk) catalog — the same definitions local stdio MCP and browser wallet apps use, filtered with `carbonExecuteEnabled: false` and no server keys.
+This is the **hosted read/prepare profile** of the shared [`@andrewkimjoseph/celina-sdk/tools`](https://www.npmjs.com/package/@andrewkimjoseph/celina-sdk) catalog — the same definitions local stdio MCP and browser wallet apps use, filtered with no server keys.
 
-**Tool surface:** **54 tools** — chain reads, oracle/AMM quotes (`get_mento_fx_quote`, `get_uniswap_quote`, `get_gooddollar_reserve_quote`), GoodDollar entitlement, Self verify/lookup, and Carbon **12 read + 13 `prepare_carbon_*`**. No `CELO_PRIVATE_KEY` or `SELF_AGENT_PRIVATE_KEY` on the server; **`execute_carbon_*`**, **`estimate_*`**, server-key writes (`send_token`, `execute_mento_fx`, etc.), `get_wallet_address`, Self lifecycle, and Self registration session tools are **omitted** from `tools/list`.
-
-Carbon prepare tools return full unsigned flows (ERC-20 approve + Carbon controller steps via SDK `finalizeCarbonPrepare`). See [celina-mcp Carbon section](../celina-mcp/README.md#carbon-defi-on-celo).
+**Tool surface:** **29 tools** — chain reads, oracle/AMM quotes (`get_mento_fx_quote`, `get_uniswap_quote`, `get_gooddollar_reserve_quote`), GoodDollar entitlement, and Self verify/lookup. No `CELO_PRIVATE_KEY` or `SELF_AGENT_PRIVATE_KEY` on the server; **`estimate_*`**, server-key writes (`send_token`, `execute_mento_fx`, etc.), `get_wallet_address`, Self lifecycle, and Self registration session tools are **omitted** from `tools/list`.
 
 GoodDollar: **`get_gooddollar_whitelisting_info`**, **`get_gooddollar_ubi_entitlement`**, and **`get_gooddollar_reserve_quote`** on hosted. **`estimate_gooddollar_reserve_swap`**, **`execute_gooddollar_reserve_swap`**, and **`claim_daily_gooddollar_ubi`** require local stdio MCP with `CELO_PRIVATE_KEY`. See [GoodDollar section](../celina-mcp/README.md#gooddollar).
 
@@ -39,7 +37,7 @@ Requires Node.js ≥ 20. Install published npm packages — do not use local `fi
 
 ```bash
 npm run dev
-npm run test:smoke   # expects 54 tools, prepare_carbon_* present, estimate_* and server-key tools absent
+npm run test:smoke   # expects 29 tools, estimate_* and server-key tools absent
 ```
 
 Connect MCP Inspector (Streamable HTTP) to `http://localhost:3000/api/mcp`.
@@ -56,7 +54,6 @@ Connect MCP Inspector (Streamable HTTP) to `http://localhost:3000/api/mcp`.
 
    | Variable | Required | Notes |
    |----------|----------|-------|
-   | `CELO_RPC_URL_MAINNET` | Recommended | Required for Carbon prepare allowance reads |
    | `ETH_RPC_URL_MAINNET` | Optional | ENS resolution |
 
    Do **not** set `CELO_PRIVATE_KEY` or `SELF_AGENT_PRIVATE_KEY`.
@@ -98,8 +95,6 @@ For stdio-only clients, use [mcp-remote](https://www.npmjs.com/package/mcp-remot
 
 ```ts
 createServer({
-  carbonExecuteEnabled: false,
-  carbonPrepareEnabled: true,
   serverKeyToolsEnabled: false,
   selfSessionToolsEnabled: false,
   estimateToolsEnabled: false,

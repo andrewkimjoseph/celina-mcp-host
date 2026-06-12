@@ -6,7 +6,7 @@ Production endpoint: [https://mcp.usecelina.xyz/api/mcp](https://mcp.usecelina.x
 
 This deployment is a **public, read-only / prepare-only** MCP server:
 
-- **54 tools** — chain reads, oracle/AMM quotes, GoodDollar entitlement, Self verify/lookup, Carbon unsigned prepares
+- **29 tools** — chain reads, oracle/AMM quotes, GoodDollar entitlement, Self verify/lookup
 - **No server signing keys** — `CELO_PRIVATE_KEY` and `SELF_AGENT_PRIVATE_KEY` are not configured
 - **No fund movement** — hosted `tools/call` cannot send tokens, execute swaps, or sign transactions; writes require a user wallet elsewhere (local stdio MCP, browser app, or wallet)
 
@@ -25,7 +25,7 @@ If you need a private MCP with server keys and writes, run [celina-mcp](https://
 | Exposure | Details |
 |----------|---------|
 | `tools/list` | Tool names, descriptions, and JSON input schemas |
-| `tools/call` | On-chain reads via RPC; unsigned transaction payloads for Carbon prepare tools |
+| `tools/call` | On-chain reads via RPC; unsigned transaction payloads for prepare tools (Mento, Uniswap, GoodDollar reserve) |
 | Secrets | None — no private keys in the Vercel environment |
 
 ## Abuse mitigations

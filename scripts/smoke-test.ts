@@ -53,12 +53,6 @@ async function main(): Promise<void> {
   console.log("tool count", tools.length);
   console.log("sample tools", names.slice(0, 3));
 
-  if (!names.includes("prepare_carbon_limit_order")) {
-    throw new Error("expected prepare_carbon_limit_order on hosted MCP");
-  }
-  if (names.some((n) => n.startsWith("execute_carbon_"))) {
-    throw new Error("execute_carbon_* must not be on hosted MCP");
-  }
   for (const excluded of [
     "send_token",
     "get_wallet_address",
@@ -74,8 +68,8 @@ async function main(): Promise<void> {
   if (names.some((n) => n.startsWith("estimate_"))) {
     throw new Error("estimate_* must not be on hosted MCP");
   }
-  if (tools.length !== 54) {
-    throw new Error(`expected 54 tools on hosted MCP, got ${tools.length}`);
+  if (tools.length !== 29) {
+    throw new Error(`expected 29 tools on hosted MCP, got ${tools.length}`);
   }
   console.log("hosted tool surface check ok");
 
