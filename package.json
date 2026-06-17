@@ -1,11 +1,11 @@
 {
   "name": "celina-mcp-host",
-  "version": "0.1.25",
+  "version": "0.1.27",
   "private": true,
   "description": "Vercel-hosted read-only Streamable HTTP endpoint for @andrewkimjoseph/celina-mcp",
   "type": "module",
   "scripts": {
-    "build": "echo \"celina-mcp is prebuilt via npm install\"",
+    "build": "echo \"discovery manifests live on celina-website/public/.well-known/\"",
     "dev": "vercel dev",
     "test:smoke": "npx tsx scripts/smoke-test.ts"
   },
@@ -13,7 +13,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@andrewkimjoseph/celina-mcp": "0.9.6",
+    "@andrewkimjoseph/celina-mcp": "^0.9.7",
     "@modelcontextprotocol/sdk": "^1.29.0"
   },
   "devDependencies": {
