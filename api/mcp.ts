@@ -1,7 +1,37 @@
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { createServer } from "@andrewkimjoseph/celina-mcp/server";
 
+function acceptsEventStream(request: Request): boolean {
+  const accept = request.headers.get("accept") ?? "";
+  return accept.toLowerCase().includes("text/event-stream");
+}
+
+/** Plain GET/HEAD for uptime probes (e.g. EIP-8004 scanners) — not MCP clients. */
+function probeResponse(request: Request): Response {
+  if (request.method === "HEAD") {
+    return new Response(null, {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  return Response.json({
+    ok: true,
+    service: "celina-mcp",
+    transport: "streamable-http",
+    mcp: true,
+  });
+}
+
 async function handleMcp(request: Request): Promise<Response> {
+  const isProbe =
+    (request.method === "GET" || request.method === "HEAD") &&
+    !acceptsEventStream(request);
+
+  if (isProbe) {
+    return probeResponse(request);
+  }
+
   const server = createServer({
     serverKeyToolsEnabled: false,
     selfSessionToolsEnabled: false,

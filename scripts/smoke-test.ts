@@ -1,6 +1,18 @@
-import { POST } from "../api/mcp.js";
+import { GET, POST } from "../api/mcp.js";
 
 async function main(): Promise<void> {
+  const probeRes = await GET(
+    new Request("http://localhost/api/mcp", { method: "GET" }),
+  );
+  if (probeRes.status !== 200) {
+    throw new Error(`expected GET probe status 200, got ${probeRes.status}`);
+  }
+  const probeBody = (await probeRes.json()) as { ok?: boolean; mcp?: boolean };
+  if (probeBody.ok !== true || probeBody.mcp !== true) {
+    throw new Error(`unexpected GET probe body: ${JSON.stringify(probeBody)}`);
+  }
+  console.log("GET probe ok");
+
   const initBody = {
     jsonrpc: "2.0",
     id: 1,

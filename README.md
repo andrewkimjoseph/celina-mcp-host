@@ -18,7 +18,7 @@ GoodDollar: **`get_gooddollar_whitelisting_info`**, **`get_gooddollar_ubi_entitl
 
 | Path | Method | Description |
 |------|--------|-------------|
-| `/api/mcp` | GET, POST, DELETE | MCP Streamable HTTP |
+| `/api/mcp` | GET, POST, DELETE | MCP Streamable HTTP (plain GET/HEAD without `Accept: text/event-stream` returns a JSON probe for uptime scanners) |
 | `/mcp` | GET, POST, DELETE | Rewrite to `/api/mcp` |
 | `/api/health` | GET | Health check |
 
