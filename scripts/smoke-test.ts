@@ -1,4 +1,7 @@
 import { GET, POST } from "../api/mcp.js";
+import { GET as a2aGet, POST as a2aPost } from "../api/a2a.js";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 async function main(): Promise<void> {
   const probeRes = await GET(
@@ -182,6 +185,147 @@ async function main(): Promise<void> {
     throw new Error(`get_mento_fx_quote unexpected result: ${quoteText}`);
   }
   console.log("get_mento_fx_quote ok");
+
+  const cardPath = join(
+    import.meta.dirname,
+    "../../celina-website/public/.well-known/agent-card.json",
+  );
+  const card = JSON.parse(readFileSync(cardPath, "utf8")) as {
+    name?: string;
+    url?: string;
+    skills?: unknown[];
+  };
+  if (card.name !== "Celina" || !card.url?.endsWith("/api/a2a")) {
+    throw new Error(`unexpected agent card: ${JSON.stringify(card).slice(0, 200)}`);
+  }
+  if (!card.skills?.length) {
+    throw new Error("agent card must list skills");
+  }
+  console.log("agent-card.json ok", card.skills.length, "skills");
+
+  const oasfPath = join(
+    import.meta.dirname,
+    "../../celina-website/public/.well-known/oasf.json",
+  );
+  const oasf = JSON.parse(readFileSync(oasfPath, "utf8")) as {
+    name?: string;
+    skills?: unknown[];
+    domains?: unknown[];
+  };
+  if (oasf.name !== "Celina" || !oasf.skills?.length || !oasf.domains?.length) {
+    throw new Error(`unexpected oasf.json: ${JSON.stringify(oasf).slice(0, 200)}`);
+  }
+  console.log("oasf.json ok", oasf.skills.length, "skills");
+
+  const agentJsonPath = join(
+    import.meta.dirname,
+    "../../celina-website/public/agent.json",
+  );
+  const agentJson = JSON.parse(readFileSync(agentJsonPath, "utf8")) as {
+    services?: Array<{ name: string; endpoint?: string }>;
+  };
+  const serviceNames = new Set(agentJson.services?.map((s) => s.name));
+  for (const required of ["MCP", "A2A", "OASF"]) {
+    if (!serviceNames.has(required)) {
+      throw new Error(`agent.json missing ${required} service`);
+    }
+  }
+  const a2aSvc = agentJson.services?.find((s) => s.name === "A2A");
+  if (!a2aSvc?.endpoint?.includes("usecelina.xyz/.well-known/agent-card.json")) {
+    throw new Error(`agent.json A2A endpoint wrong: ${a2aSvc?.endpoint}`);
+  }
+  console.log("agent.json discovery services ok");
+
+  const a2aCardRes = await a2aGet(
+    new Request("http://localhost/api/a2a", { method: "GET" }),
+  );
+  if (a2aCardRes.status !== 200) {
+    throw new Error(`A2A GET card status ${a2aCardRes.status}`);
+  }
+  const liveCard = (await a2aCardRes.json()) as { url?: string };
+  if (!liveCard.url?.endsWith("/api/a2a")) {
+    throw new Error(`A2A GET handler card missing url: ${JSON.stringify(liveCard)}`);
+  }
+  console.log("A2A GET agent card ok");
+
+  const a2aSendRes = await a2aPost(
+    new Request("http://localhost/api/a2a", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: "a2a-1",
+        method: "message/send",
+        params: {
+          message: {
+            messageId: crypto.randomUUID(),
+            role: "user",
+            kind: "message",
+            parts: [
+              {
+                kind: "data",
+                data: {
+                  tool: "get_network_status",
+                  arguments: {},
+                },
+              },
+            ],
+          },
+        },
+      }),
+    }),
+  );
+  const a2aSendText = await a2aSendRes.text();
+  if (a2aSendRes.status !== 200) {
+    throw new Error(`A2A message/send status ${a2aSendRes.status}: ${a2aSendText}`);
+  }
+  const a2aParsed = JSON.parse(a2aSendText) as {
+    result?: {
+      parts?: Array<{ kind: string; data?: { result?: { chainId?: number } } }>;
+    };
+  };
+  const dataPart = a2aParsed.result?.parts?.find((p) => p.kind === "data");
+  if (!dataPart?.data?.result?.chainId) {
+    throw new Error(`A2A get_network_status unexpected: ${a2aSendText.slice(0, 500)}`);
+  }
+  console.log("A2A get_network_status ok", dataPart.data.result.chainId);
+
+  const rejectRes = await a2aPost(
+    new Request("http://localhost/api/a2a", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: "a2a-2",
+        method: "message/send",
+        params: {
+          message: {
+            messageId: crypto.randomUUID(),
+            role: "user",
+            kind: "message",
+            parts: [
+              {
+                kind: "data",
+                data: {
+                  tool: "send_token",
+                  arguments: { to: "0x0", token: "USDm", amount: "1" },
+                },
+              },
+            ],
+          },
+        },
+      }),
+    }),
+  );
+  const rejectText = await rejectRes.text();
+  const rejectParsed = JSON.parse(rejectText) as {
+    result?: { parts?: Array<{ kind: string; text?: string }> };
+  };
+  const errText = rejectParsed.result?.parts?.find((p) => p.kind === "text")?.text;
+  if (!errText?.includes("not available on hosted A2A")) {
+    throw new Error(`expected send_token rejection, got: ${rejectText}`);
+  }
+  console.log("A2A write tool rejection ok");
 }
 
 main().catch((error) => {
