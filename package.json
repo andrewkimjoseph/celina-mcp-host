@@ -1,6 +1,6 @@
 {
   "name": "celina-mcp-host",
-  "version": "0.1.32",
+  "version": "0.1.33",
   "private": true,
   "description": "Vercel-hosted read-only Streamable HTTP endpoint for @andrewkimjoseph/celina-mcp",
   "type": "module",
@@ -13,7 +13,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@andrewkimjoseph/celina-mcp": "0.12.6",
+    "@andrewkimjoseph/celina-mcp": "0.12.7",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "ox": "^0.10.0"
   },
