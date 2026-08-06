@@ -83,11 +83,13 @@ async function main(): Promise<void> {
   if (names.some((n) => n.startsWith("estimate_"))) {
     throw new Error("estimate_* must not be on hosted MCP");
   }
-  if (tools.length !== 34) {
-    throw new Error(`expected 34 tools on hosted MCP, got ${tools.length}`);
+  if (tools.length !== 44) {
+    throw new Error(`expected 44 tools on hosted MCP, got ${tools.length}`);
   }
   console.log("hosted tool surface check ok");
 
+  // Demo Self agent #1 — registered on-chain; default age/OFAC gates may return verified:false.
+  const selfAgentAddress = "0xC1C860804EFdA544fe79194d1a37e60b846CEdeb";
   const verifyBody = {
     jsonrpc: "2.0",
     id: 3,
@@ -95,7 +97,7 @@ async function main(): Promise<void> {
     params: {
       name: "verify_self_agent",
       arguments: {
-        agent_address: "0xC1C860804EFdA544fe79194d1a37e60b846CEdeb",
+        agent_address: selfAgentAddress,
       },
     },
   };
@@ -112,13 +114,27 @@ async function main(): Promise<void> {
   );
   const verifyText = await verifyRes.text();
   const verifyParsed = JSON.parse(verifyText) as {
-    result?: { isError?: boolean; structuredContent?: { verified?: boolean } };
+    result?: {
+      isError?: boolean;
+      structuredContent?: {
+        verified?: boolean;
+        agent_address?: string;
+        agent_id?: number;
+      };
+    };
   };
   if (verifyParsed.result?.isError) {
     throw new Error(`verify_self_agent failed: ${verifyText}`);
   }
-  if (verifyParsed.result?.structuredContent?.verified !== true) {
-    throw new Error(`verify_self_agent unexpected result: ${verifyText}`);
+  const verifyContent = verifyParsed.result?.structuredContent;
+  if (verifyContent?.agent_address !== selfAgentAddress) {
+    throw new Error(`verify_self_agent unexpected address: ${verifyText}`);
+  }
+  if (typeof verifyContent?.verified !== "boolean") {
+    throw new Error(`verify_self_agent missing verified flag: ${verifyText}`);
+  }
+  if (verifyContent?.agent_id !== 1) {
+    throw new Error(`verify_self_agent unexpected agent_id: ${verifyText}`);
   }
   console.log("verify_self_agent ok");
 

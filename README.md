@@ -4,13 +4,13 @@
 
 # Celina MCP Host
 
-Backend-only Vercel deployment that exposes [celina-mcp](../celina-mcp) over **Streamable HTTP**. No Next.js, no UI.
+Backend-only Vercel deployment that exposes [celina-mcp](../celina-mcp) over **Streamable HTTP** and **A2A**. No Next.js, no UI.
 
 This is the **hosted read/prepare profile** of the shared [`@andrewkimjoseph/celina-sdk/tools`](https://www.npmjs.com/package/@andrewkimjoseph/celina-sdk) catalog — the same definitions local stdio MCP and browser wallet apps use, filtered with no server keys.
 
-**Tool surface:** **36 tools** — chain reads, oracle/AMM quotes (`get_mento_fx_quote`, `get_uniswap_quote`, `get_gooddollar_reserve_quote`), attribution (`check_attribution_tag`, `verify_attribution_tag`), Aave supplied balances, GoodDollar identity link/whitelist/entitlement, Self verify/lookup, and AgentKarma reputation (`get_agentkarma_reputation`, `get_agentkarma_celo_agent`, `check_agentkarma_counterparty`). No `CELO_PRIVATE_KEY` or `SELF_AGENT_PRIVATE_KEY` on the server; **`estimate_*`**, server-key writes (`send_token`, `execute_mento_fx`, etc.), `get_wallet_address`, Self lifecycle, and Self registration session tools are **omitted** from `tools/list`.
+**Tool surface:** **44 tools** — chain reads, humanness check, governance/staking reads, oracle/AMM quotes (`get_mento_fx_quote`, `get_uniswap_quote`, `get_gooddollar_reserve_quote`), attribution (`check_attribution_tag`, `verify_attribution_tag`), Aave supplied balances, GoodDollar identity link/whitelist/entitlement, Self verify/lookup, and AgentKarma reputation. No `CELO_PRIVATE_KEY` or `SELF_AGENT_PRIVATE_KEY` on the server; **`estimate_*`**, server-key writes (`send_token`, `execute_lock_celo`, `execute_stake`, etc.), `get_wallet_address`, GoodDollar claim/connect/disconnect writes, Self lifecycle, and Self registration session tools are **omitted** from `tools/list`.
 
-GoodDollar: **`get_gooddollar_whitelisting_info`**, **`get_gooddollar_ubi_entitlement`**, and **`get_gooddollar_reserve_quote`** on hosted. **`estimate_gooddollar_reserve_swap`**, **`execute_gooddollar_reserve_swap`**, and **`claim_daily_gooddollar_ubi`** require local stdio MCP with `CELO_PRIVATE_KEY`. See [GoodDollar section](../celina-mcp/README.md#gooddollar).
+GoodDollar: **`get_gooddollar_whitelisting_info`**, **`get_gooddollar_identity_link`**, **`get_gooddollar_ubi_entitlement`**, and **`get_gooddollar_reserve_quote`** on hosted. **`estimate_gooddollar_reserve_swap`**, **`execute_gooddollar_reserve_swap`**, **`claim_daily_gooddollar_ubi`**, and identity connect/disconnect writes require local stdio MCP with `CELO_PRIVATE_KEY`. See [GoodDollar section](../celina-mcp/README.md#gooddollar).
 
 **Dependencies:** `@andrewkimjoseph/celina-mcp` (exact npm version) and `@modelcontextprotocol/sdk`. Chain logic and swap libraries come transitively through celina-mcp → celina-sdk — no `file:` links on Vercel.
 
@@ -20,9 +20,14 @@ GoodDollar: **`get_gooddollar_whitelisting_info`**, **`get_gooddollar_ubi_entitl
 |------|--------|-------------|
 | `/api/mcp` | GET, POST, DELETE | MCP Streamable HTTP (plain GET/HEAD without `Accept: text/event-stream` returns a JSON probe for uptime scanners) |
 | `/mcp` | GET, POST, DELETE | Rewrite to `/api/mcp` |
+| `/api/a2a` | GET, POST, HEAD | A2A agent card + `message/send` (hosted read tools only; server-key writes rejected) |
+| `/a2a` | GET, POST, HEAD | Rewrite to `/api/a2a` |
 | `/api/health` | GET | Health check |
 
-Production: [https://mcp.usecelina.xyz/api/mcp](https://mcp.usecelina.xyz/api/mcp)
+Production:
+
+- MCP: [https://mcp.usecelina.xyz/api/mcp](https://mcp.usecelina.xyz/api/mcp)
+- A2A: [https://mcp.usecelina.xyz/api/a2a](https://mcp.usecelina.xyz/api/a2a)
 
 ## Setup
 
@@ -37,7 +42,7 @@ Requires Node.js ≥ 20. Install published npm packages — do not use local `fi
 
 ```bash
 npm run dev
-npm run test:smoke   # expects 36 tools, estimate_* and server-key tools absent
+npm run test:smoke   # expects 44 hosted tools, estimate_* and server-key tools absent
 ```
 
 Connect MCP Inspector (Streamable HTTP) to `http://localhost:3000/api/mcp`.
@@ -55,6 +60,7 @@ Connect MCP Inspector (Streamable HTTP) to `http://localhost:3000/api/mcp`.
    | Variable | Required | Notes |
    |----------|----------|-------|
    | `ETH_RPC_URL_MAINNET` | Optional | ENS resolution |
+   | `CELINA_A2A_BASE_URL` | Optional | Public base URL for A2A agent card (default `https://mcp.usecelina.xyz`) |
 
    Do **not** set `CELO_PRIVATE_KEY` or `SELF_AGENT_PRIVATE_KEY`.
 
@@ -101,11 +107,13 @@ createServer({
 })
 ```
 
-`createServer` calls `registerSdkTools`, which filters `ALL_TOOL_DEFINITIONS` from celina-sdk. Chain logic and handlers live in celina-sdk; celina-mcp wires them to MCP; this repo only provides the Streamable HTTP entrypoint on Vercel.
+[`api/a2a.ts`](api/a2a.ts) imports `handleA2ARequest` from `@andrewkimjoseph/celina-mcp/a2a` with the same hosted filter — A2A `message/send` can invoke read tools only; writes like `send_token` are rejected.
+
+`createServer` calls `registerSdkTools`, which filters `ALL_TOOL_DEFINITIONS` from celina-sdk. Chain logic and handlers live in celina-sdk; celina-mcp wires them to MCP; this repo only provides the Streamable HTTP and A2A entrypoints on Vercel.
 
 ## Hosted constraints
 
-Server-key writes and all `estimate_*` gas simulation tools are omitted from `tools/list` on hosted. Use local stdio MCP with `CELO_PRIVATE_KEY` for `send_token`, `estimate_send`, `estimate_mento_fx`, etc.
+Server-key writes and all `estimate_*` gas simulation tools are omitted from `tools/list` on hosted. Use local stdio MCP with `CELO_PRIVATE_KEY` / `SELF_AGENT_PRIVATE_KEY` for `send_token`, governance/staking executes, GoodDollar claims, etc.
 
 Self registration sessions (`register_self_agent` → `check_self_registration`) are unreliable on stateless serverless because session state is in-memory per invocation — use local stdio for Self Agent ID lifecycle flows.
 
