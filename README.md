@@ -2,7 +2,7 @@
   <img src="./assets/celina-banner.png" alt="Celina — Give your LLM a wallet on Celo">
 </p>
 
-# Celina MCP Host
+# Celina MCP Remote
 
 Backend-only Vercel deployment that exposes [celina-mcp](../celina-mcp) over **Streamable HTTP** and **A2A**. No Next.js, no UI.
 
@@ -49,7 +49,7 @@ Connect MCP Inspector (Streamable HTTP) to `http://localhost:3000/api/mcp`.
 
 ## Deploy to Vercel
 
-1. Link the project (root directory: `celina-mcp-host` if deploying from the monorepo):
+1. Link the project (root directory: `celina-mcp-remote` if deploying from the monorepo):
 
    ```bash
    vercel link

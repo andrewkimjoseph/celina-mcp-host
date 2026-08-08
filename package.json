@@ -1,8 +1,8 @@
 {
-  "name": "celina-mcp-host",
+  "name": "celina-mcp-remote",
   "version": "0.1.42",
   "private": true,
-  "description": "Vercel-hosted read-only Streamable HTTP endpoint for @andrewkimjoseph/celina-mcp",
+  "description": "Vercel-hosted remote read-only Streamable HTTP endpoint for @andrewkimjoseph/celina-mcp",
   "type": "module",
   "scripts": {
     "build": "echo \"discovery manifests live on celina-website/public/.well-known/\"",
