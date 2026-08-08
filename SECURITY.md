@@ -1,4 +1,4 @@
-# Security — Celina hosted MCP
+# Security — Celina remote MCP
 
 Production endpoint: [https://mcp.usecelina.xyz/api/mcp](https://mcp.usecelina.xyz/api/mcp)
 
@@ -6,7 +6,7 @@ Production endpoint: [https://mcp.usecelina.xyz/api/mcp](https://mcp.usecelina.x
 
 This deployment is a **public, read-only / prepare-only** MCP server:
 
-- **34 tools** — chain reads, oracle/AMM quotes, Aave supplied balances, GoodDollar identity link/whitelist/entitlement, Self verify/lookup, AgentKarma reputation (read-only external API)
+- **45 tools** — chain reads, oracle/AMM quotes, governance/staking reads, Aave supplied balances, GoodDollar identity link/whitelist/entitlement, Self verify/lookup, AgentKarma reputation (read-only external API)
 - **No server signing keys** — `CELO_PRIVATE_KEY` and `SELF_AGENT_PRIVATE_KEY` are not configured
 - **No fund movement** — hosted `tools/call` cannot send tokens, execute swaps, or sign transactions; writes require a user wallet elsewhere (local stdio MCP, browser app, or wallet)
 
@@ -42,4 +42,4 @@ If you need a private MCP with server keys and writes, run [celina-mcp](https://
 
 ## Reporting
 
-Report security concerns via [GitHub Issues](https://github.com/andrewkimjoseph/celina-mcp-host/issues) on the celina-mcp-host repository (or the celina meta-repo if unsure which submodule owns the finding).
+Report security concerns via [GitHub Issues](https://github.com/andrewkimjoseph/celina-mcp-remote/issues) on the celina-mcp-remote repository (or the celina meta-repo if unsure which submodule owns the finding).
